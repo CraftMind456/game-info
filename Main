@@ -1,0 +1,22 @@
+import sys
+import requests
+import textwrap
+
+def get_game_summary(game_name, max_lines=30):
+    url = "https://en.wikipedia.org/api/rest_v1/page/summary/" + game_name.replace(' ', '_')
+    response = requests.get(url)
+    if response.status_code != 200:
+        return f"No Wikipedia page found for '{game_name}'. Try another name."
+    data = response.json()
+    if 'extract' not in data:
+        return f"No summary available for '{game_name}'."
+    wrapped_text = textwrap.fill(data['extract'], width=80)
+    lines = wrapped_text.split('\n')
+    return '\n'.join(lines[:max_lines])
+
+if __name__ == "__main__":
+    if len(sys.argv) > 1:
+        game = sys.argv[1]
+        print(get_game_summary(game))
+    else:
+        print("Please provide a game name as an argument.")
